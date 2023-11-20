@@ -3,21 +3,29 @@
 
 std::vector<Token> Lexer::generate_token_stream() {
 
-  while (current_position != input.end()) {
+  while (m_current_position != m_input.end()) {
 
-    // sanity check
-    // std::cout << *current_position << " <";
-
-    bool is_token_complete{current_token.update_value(*current_position)};
+    bool is_token_complete{m_current_token.update_value(*m_current_position)};
 
     if (is_token_complete) {
-      token_stream.push_back(current_token);
-      current_token = Token();
+      if (m_current_token.is_invalid()) { // throws away invalid characters
+        m_current_token = pop_last();
+      } else {
+        m_token_stream.push_back(m_current_token);
+        m_current_token = Token();
+      }
     } else {
-      current_position++;
+      m_current_position++;
     }
   }
-  if (current_token.get_state() != Initial)
-    token_stream.push_back(current_token);
-  return token_stream;
+  if (m_current_token.get_state() != Initial)
+    m_token_stream.push_back(m_current_token);
+  return m_token_stream;
+}
+
+Token Lexer::pop_last() {
+  auto it = m_token_stream.end();
+  Token result{*--it};
+  m_token_stream.pop_back();
+  return result;
 }

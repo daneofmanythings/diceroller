@@ -5,7 +5,7 @@
 bool Token::update_value(const char &c) {
   // std::cout << state << "> " << c << std::endl;
   bool is_token_complete{};
-  switch (state) {
+  switch (m_state) {
   case Initial:
     is_token_complete = update_state_from_initial(c);
     break;
@@ -30,29 +30,29 @@ bool Token::update_value(const char &c) {
 
 bool Token::update_state_from_initial(const char &c) {
   if (util::isdigit(c)) {
-    state = Constant;
-    value += c;
+    m_state = Constant;
+    m_value += c;
   } else if (c == 'd') {
-    state = Dice;
-    value += c;
-  } else if (util::find(operators, c)) {
-    state = Operator;
-    value += c;
-  } else if (util::find(whitespace, c)) {
+    m_state = Dice;
+    m_value += c;
+  } else if (isoperator(c)) { // this is a little out of place to keep operator
+    m_state = Operator;       // definitions in the Token class.
+    m_value += c;
+  } else if (util::iswhitespace(c)) {
+    // letting it fall through to mint the token
   } else {
-    // std::cout << "fallen through initial >> " << c << std::endl;
-    state = Invalid;
-    value += c;
+    m_state = Invalid;
+    m_value += c;
   }
   return false;
 }
 
 bool Token::update_state_from_constant(const char &c) {
   if (util::isdigit(c)) {
-    value += c;
+    m_value += c;
   } else if (c == 'd') {
-    state = Dice;
-    value += c;
+    m_state = Dice;
+    m_value += c;
   } else
     return true;
   return false;
@@ -60,16 +60,16 @@ bool Token::update_state_from_constant(const char &c) {
 
 bool Token::update_state_from_dice(const char &c) {
   if (util::isdigit(c)) {
-    value += c;
+    m_value += c;
   } else
     return true;
   return false;
 }
 
 bool Token::update_state_from_operator(const char &c) {
-  if (util::isalpha(c) and value == "-") {
-    state = Flag;
-    value += c;
+  if (util::isalpha(c) and m_value == "-") {
+    m_state = Flag;
+    m_value += c;
   } else
     return true;
   return false;
@@ -77,13 +77,15 @@ bool Token::update_state_from_operator(const char &c) {
 
 bool Token::update_state_from_flag(const char &c) {
   if (util::isalpha(c)) {
-    value += c;
+    m_value += c;
   } else
     return true;
   return false;
 }
 
 bool Token::update_state_from_invalid(const char &c) { return true; }
+
+bool Token::isoperator(const char &c) { return util::find(c_operators, c); }
 
 std::ostream &operator<<(std::ostream &os, const TokenState &token_state) {
   std::string token_name{};

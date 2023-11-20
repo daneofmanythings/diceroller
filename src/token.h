@@ -18,8 +18,9 @@ std::ostream &operator<<(std::ostream &os, const TokenState &token_type);
 
 class Token {
 public:
-  TokenState get_state() const { return state; }
-  std::string get_value() const { return value; }
+  TokenState get_state() const { return m_state; }
+  std::string get_value() const { return m_value; }
+  bool is_invalid() const { return get_state() == Invalid; }
 
   bool update_value(const char &c);
 
@@ -30,13 +31,14 @@ public:
   bool update_state_from_flag(const char &c);
   bool update_state_from_invalid(const char &c);
 
-  Token() : state{Initial}, value{std::string()} {};
+  bool isoperator(const char &c);
+
+  Token() : m_state{Initial}, m_value{std::string()} {};
 
 private:
-  TokenState state;
-  std::string value;
-  static constexpr std::array<char, 4> operators = {'+', '-', '*', '/'};
-  static constexpr std::array<char, 4> whitespace = {' ', '\n', '\r', '\t'};
+  TokenState m_state;
+  std::string m_value;
+  static constexpr std::array<char, 4> c_operators = {'+', '-', '*', '/'};
 };
 
 #endif // !_TOKENS_H_

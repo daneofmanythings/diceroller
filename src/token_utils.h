@@ -24,6 +24,10 @@ inline bool ispunct(const char &c) {
   return static_cast<bool>(std::ispunct(static_cast<unsigned char>(c)));
 }
 
+inline bool iswhitespace(const char &c) {
+  return static_cast<bool>(std::isspace(static_cast<unsigned char>(c)));
+}
+
 } // namespace util
 
 #endif // !_TOKEN_UTILS_H_
